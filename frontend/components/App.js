@@ -71,8 +71,7 @@ export default class App extends React.Component {
   render() {
     return (
       <div>
-        <div id="error">Error: {this.state.error}</div>
-
+        
         <TodoList 
           todos={this.state.todos}
           displayCompleted={this.state.displayCompleted}
