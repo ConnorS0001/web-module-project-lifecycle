@@ -45,9 +45,16 @@ export default class App extends React.Component {
       .catch(this.axiosErrorResponse)
   }
   
-  toggleCompleted = id => evt => {
+  toggleCompleted = id => () => {
     axios.patch(`${URL}/${id}`)
-      .then()
+      .then(response => {
+        this.setState({
+          ...this.state, todos: this.state.todos.map(td => {
+            if (td.id !== id) return td
+            return response.data.data
+          })
+        })
+      })
       .catch(this.axiosErrorResponse)
   }
 
@@ -64,7 +71,7 @@ export default class App extends React.Component {
         <div>Error: {this.state.error}</div>
         {
           this.state.todos.map(todo => {
-            return <div onClick={this.toggleCompleted} key={todo.id}>{todo.name} {todo.completed ? ' ✔️' : ''}</div>
+            return <div onClick={this.toggleCompleted(todo.id)} key={todo.id}>{todo.name} {todo.completed ? ' ✔️' : ''}</div>
           })
         }
         <form id='todoForm' onSubmit={this.onFormSubmit}>
