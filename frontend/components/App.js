@@ -16,15 +16,20 @@ export default class App extends React.Component {
     this.setState({ ...this.state, todoNameInput: value })
   }
 
+  resetForm = () => {
+    this.setState({...this.state, todoNameInput: ''})
+  }
+  axiosErrorResponse = error => {
+    this.setState({...this.state, error: error.response.data.message})
+  }
+
   postNewTodo = () => {
     axios.post(URL, {name: this.state.todoNameInput})
       .then(response => {
-        this.fetchAllTodos()
-        this.setState({...this.state, todoNameInput: ''})
+        this.setState({...this.state, todos: this.state.todos.concat(response.data.data) })
+        this.resetForm()
       })
-      .catch(error => {
-        this.setState({...this.state, error: error.response.data.message})
-      })
+      .catch(this.axiosErrorResponse)
   }
 
   onFormSubmit = evt => {
@@ -37,11 +42,15 @@ export default class App extends React.Component {
       .then(response => {
         this.setState({ ...this.state, todos: response.data.data })
       })
-      .catch(error => {
-        this.setState({...this.state, error: error.response.data.message})
-      })
+      .catch(this.axiosErrorResponse)
   }
   
+  toggleCompleted = id => evt => {
+    axios.patch(`${URL}/${id}`)
+      .then()
+      .catch(this.axiosErrorResponse)
+  }
+
   componentDidMount() {
     this.fetchAllTodos()
   }
@@ -49,14 +58,18 @@ export default class App extends React.Component {
   render() {
     return (
       <div>
+        <div id="todos">
+          <h2>Todos:</h2>
+        </div>
         <div>Error: {this.state.error}</div>
         {
           this.state.todos.map(todo => {
-            return <div key={todo.id}>{todo.name}</div>
+            return <div onClick={this.toggleCompleted} key={todo.id}>{todo.name} {todo.completed ? ' ✔️' : ''}</div>
           })
         }
         <form id='todoForm' onSubmit={this.onFormSubmit}>
           <input value={this.state.todoNameInput} onChange={this.onTodoChange} type='text' placeholder='Add Todo'></input>
+          <button>Show Completed</button>
           <input type='submit'></input>
         </form>
       </div>
